@@ -92,9 +92,9 @@ def training_function(script_args, training_args):
     train_dataset = train_dataset.map(template_dataset, remove_columns=["messages"])
     test_dataset = test_dataset.map(template_dataset, remove_columns=["messages"])
     print("train_dataset:")
-    print(train_dataset)
+    print(train_dataset[0])
     print("test_dataset:")
-    print(test_dataset)
+    print(test_dataset[0])
     # print random sample
     with training_args.main_process_first(
         desc="Log a few random samples from the processed training set"
