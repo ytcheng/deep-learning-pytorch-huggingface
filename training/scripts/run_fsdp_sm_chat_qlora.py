@@ -84,20 +84,16 @@ def training_function(script_args, training_args):
     tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8b", use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.chat_template = LLAMA_3_CHAT_TEMPLATE
-    print("chat_template:")
-    print(tokenizer.chat_template)
+    
     # template dataset
     def template_dataset(examples):
-        # print("examples:")
-        # print(examples)
         return{"text":  tokenizer.apply_chat_template(examples["messages"], tokenize=False)}
 
     print("train_dataset0:")
     print(train_dataset[0])
     print("test_dataset0:")
     print(test_dataset[0])
-    print("len:")
-    print(len(train_dataset[0]["messages"]))
+    
     train_dataset = train_dataset.map(template_dataset, remove_columns=["messages"])
     # train_dataset = train_dataset.map(template_dataset)
     test_dataset = test_dataset.map(template_dataset, remove_columns=["messages"])
@@ -126,13 +122,14 @@ def training_function(script_args, training_args):
         )
 
     model = AutoModelForCausalLM.from_pretrained(
-        script_args.model_id,
+        # script_args.model_id,
+        "meta-llama/Meta-Llama-3-8b",
         quantization_config=quantization_config,
         attn_implementation="sdpa", # use sdpa, alternatively use "flash_attention_2"
         torch_dtype=quant_storage_dtype,
         use_cache=False if training_args.gradient_checkpointing else True,  # this is needed for gradient checkpointing
     )
-    
+    model.load_adapter("llama-3-8b-hf-sm")
     if training_args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
 
