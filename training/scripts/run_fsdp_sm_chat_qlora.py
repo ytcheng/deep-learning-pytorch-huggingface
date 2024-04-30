@@ -27,9 +27,13 @@ from trl import (
 
 LLAMA_3_CHAT_TEMPLATE = (
     "{% for message in messages %}"
-         "你是蜀门小助手，你需要回答用户提出的和蜀门这个游戏相关的问题"
-         "{{ '\n\nHuman: ' + message['question'] +  eos_token }}"
-         "{{ '\n\nAssistant: ' + message['answer'] +  eos_token }}"
+        "{% if message['role'] == 'system' %}"
+            "{{ message['content'] }}"
+        "{% elif message['role'] == 'user' %}"
+            "{{ '\n\nHuman: ' + message['content'] +  eos_token }}"
+        "{% elif message['role'] == 'assistant' %}"
+            "{{ '\n\nAssistant: '  + message['content'] +  eos_token  }}"
+        "{% endif %}"
     "{% endfor %}"
     "{% if add_generation_prompt %}"
     "{{ '\n\nAssistant: ' }}"
@@ -53,12 +57,19 @@ class ScriptArguments:
         default=512, metadata={"help": "The maximum sequence length for SFT Trainer"}
     )
 
+system_message = """你是蜀门游戏助手，你需要根据回答用户的问题"""
+
+def create_conversation(sample):
+    sample["messages"] = [{"role": "system", "content": system_message}, {"role":"user", "content": sample["question"]}, {"role":"assistant", "content":sample["anwswer"]}]
+    return sample
 
 def training_function(script_args, training_args):
     ################
     # Dataset
     ################
     dataset = load_dataset("ytcheng/sm_question")
+    dataset = dataset.map(create_conversation, remove_columns=columns_to_remove,batched=False)
+
     dataset  = dataset["train"].train_test_split(test_size=0.05)
     train_dataset = dataset["train"]
     test_dataset = dataset["test"]
