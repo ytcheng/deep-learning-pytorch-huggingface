@@ -71,8 +71,8 @@ def training_function(script_args, training_args):
     dataset = dataset.map(create_conversation, remove_columns=["question", "answer"],batched=False)
 
     dataset  = dataset["train"].train_test_split(test_size=0.05)
-    train_dataset = dataset["train"]
-    test_dataset = dataset["test"]
+    train_dataset = {"train": dataset["train"]}
+    test_dataset = {"train": dataset["test"]}
     # train_dataset = load_dataset(
     #     "json",
     #     data_files=os.path.join(script_args.dataset_path, "train_dataset.json"),
