@@ -58,7 +58,7 @@ def training_function(script_args, training_args):
     ################
     # Dataset
     ################
-    dataset = load_dateset("ytcheng/sm_question")
+    dataset = load_dataset("ytcheng/sm_question")
     train_dataset,test_dataset  = dataset["train"].train_test_split(test_size=0.05)
     # train_dataset = load_dataset(
     #     "json",
