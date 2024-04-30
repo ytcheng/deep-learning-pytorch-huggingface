@@ -14,7 +14,7 @@ from transformers import (
 
 )
 from trl import setup_chat_format
-from peft import LoraConfig, PeftConfig
+from peft import LoraConfig, PeftConfig, PeftModel
 
 
 from trl import (
@@ -129,6 +129,7 @@ def training_function(script_args, training_args):
         torch_dtype=quant_storage_dtype,
         use_cache=False if training_args.gradient_checkpointing else True,  # this is needed for gradient checkpointing
     )
+    model = PeftModel.from_pretrained(model, "llama-3-8b-hf-sm")
     # model.load_adapter("llama-3-8b-hf-sm")
     if training_args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
@@ -159,7 +160,7 @@ def training_function(script_args, training_args):
         train_dataset=train_dataset,
         dataset_text_field="text",
         eval_dataset=test_dataset,
-        peft_config=peft_config,
+        # peft_config=peft_config,
         max_seq_length=script_args.max_seq_length,
         tokenizer=tokenizer,
         packing=True,
