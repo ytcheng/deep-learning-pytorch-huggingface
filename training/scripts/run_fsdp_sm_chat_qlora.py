@@ -59,30 +59,22 @@ class ScriptArguments:
 
 system_message = """你是蜀门游戏助手，你需要根据回答用户的问题"""
 
-def create_conversation(sample):
-    sample["messages"] = [{"role": "system", "content": system_message}, {"role":"user", "content": sample["question"]}, {"role":"assistant", "content":sample["answer"]}]
-    return sample
 
 def training_function(script_args, training_args):
     ################
     # Dataset
     ################
-    dataset = load_dataset("ytcheng/sm_question")
-    dataset = dataset.map(create_conversation, remove_columns=["question", "answer"],batched=False)
+    train_dataset = load_dataset(
+        "json",
+        data_files=os.path.join(script_args.dataset_path, "train_dataset.json"),
+        split="train",
+    )
+    test_dataset = load_dataset(
+        "json",
+        data_files=os.path.join(script_args.dataset_path, "test_dataset.json"),
+        split="train",
+    )
 
-    dataset  = dataset["train"].train_test_split(test_size=0.05)
-    train_dataset = dataset["train"]
-    test_dataset = dataset["test"]
-    # train_dataset = load_dataset(
-    #     "json",
-    #     data_files=os.path.join(script_args.dataset_path, "train_dataset.json"),
-    #     split="train",
-    # )
-    # test_dataset = load_dataset(
-    #     "json",
-    #     data_files=os.path.join(script_args.dataset_path, "test_dataset.json"),
-    #     split="train",
-    # )
 
     ################
     # Model & Tokenizer
