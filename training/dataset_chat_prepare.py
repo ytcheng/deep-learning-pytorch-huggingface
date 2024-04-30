@@ -14,7 +14,7 @@ dataset = load_dataset("ytcheng/sm_question")
 columns_to_remove = list(dataset["train"].features)
 
 dataset = dataset.map(create_conversation, remove_columns=columns_to_remove,batched=False)
-dataset = dataset["train"].train_test_split(test_size=0.05)
+dataset = dataset["train"].train_test_split(test_size=0.2)
 
 # Filter out conversations which are corrupted with wrong turns, keep which have even number of turns after adding system message
 # dataset["train"] = dataset["train"].filter(lambda x: len(x["messages"][1:]) % 2 == 0)
