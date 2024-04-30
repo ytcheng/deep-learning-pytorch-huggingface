@@ -88,6 +88,8 @@ def training_function(script_args, training_args):
     print(tokenizer.chat_template)
     # template dataset
     def template_dataset(examples):
+        print("examples:")
+        print(examples)
         return{"text":  tokenizer.apply_chat_template(examples, tokenize=False)}
 
     print("train_dataset0:")
@@ -96,10 +98,10 @@ def training_function(script_args, training_args):
     print(test_dataset[0])
     print("len:")
     print(len(train_dataset[0]["messages"]))
-    # train_dataset = train_dataset.map(template_dataset, remove_columns=["messages"])
-    train_dataset = train_dataset.map(template_dataset)
-    # test_dataset = test_dataset.map(template_dataset, remove_columns=["messages"])
-    test_dataset = test_dataset.map(template_dataset)
+    train_dataset = train_dataset.map(template_dataset, remove_columns=["messages"])
+    # train_dataset = train_dataset.map(template_dataset)
+    test_dataset = test_dataset.map(template_dataset, remove_columns=["messages"])
+    # test_dataset = test_dataset.map(template_dataset)
     print("train_dataset:")
     print(train_dataset[0])
     print("test_dataset:")
