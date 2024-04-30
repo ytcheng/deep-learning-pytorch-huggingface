@@ -14,7 +14,7 @@ from transformers import (
 
 )
 from trl import setup_chat_format
-from peft import LoraConfig
+from peft import LoraConfig, PeftConfig
 
 
 from trl import (
