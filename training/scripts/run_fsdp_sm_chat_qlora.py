@@ -59,7 +59,9 @@ def training_function(script_args, training_args):
     # Dataset
     ################
     dataset = load_dataset("ytcheng/sm_question")
-    train_dataset,test_dataset  = dataset["train"].train_test_split(test_size=0.05)
+    dataset  = dataset["train"].train_test_split(test_size=0.05)
+    train_dataset = dataset["train"]
+    test_dataset = dataset["test"]
     # train_dataset = load_dataset(
     #     "json",
     #     data_files=os.path.join(script_args.dataset_path, "train_dataset.json"),
@@ -82,10 +84,10 @@ def training_function(script_args, training_args):
     
     # template dataset
     def template_dataset(examples):
-        return{"text":  tokenizer.apply_chat_template(examples["messages"], tokenize=False)}
+        return{"text":  tokenizer.apply_chat_template(examples, tokenize=False)}
     
-    train_dataset = train_dataset.map(template_dataset, remove_columns=["messages"])
-    test_dataset = test_dataset.map(template_dataset, remove_columns=["messages"])
+    train_dataset = train_dataset.map(template_dataset, remove_columns=["question", "answer"])
+    test_dataset = test_dataset.map(template_dataset, remove_columns=["question", "answer"])
     
     # print random sample
     with training_args.main_process_first(
