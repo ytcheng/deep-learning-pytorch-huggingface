@@ -68,7 +68,7 @@ def training_function(script_args, training_args):
     # Dataset
     ################
     dataset = load_dataset("ytcheng/sm_question")
-    dataset = dataset.map(create_conversation, remove_columns=columns_to_remove,batched=False)
+    dataset = dataset.map(create_conversation, remove_columns=["question", "answer"],batched=False)
 
     dataset  = dataset["train"].train_test_split(test_size=0.05)
     train_dataset = dataset["train"]
