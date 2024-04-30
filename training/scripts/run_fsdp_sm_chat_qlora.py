@@ -154,7 +154,7 @@ def training_function(script_args, training_args):
         train_dataset=train_dataset,
         dataset_text_field="text",
         eval_dataset=test_dataset,
-        peft_config=peft_config,
+        # peft_config=peft_config,
         max_seq_length=script_args.max_seq_length,
         tokenizer=tokenizer,
         packing=True,
