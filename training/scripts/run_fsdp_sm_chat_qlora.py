@@ -88,9 +88,9 @@ def training_function(script_args, training_args):
     print(tokenizer.chat_template)
     # template dataset
     def template_dataset(examples):
-        print("examples:")
-        print(examples)
-        return{"text":  tokenizer.apply_chat_template(examples, tokenize=False)}
+        # print("examples:")
+        # print(examples)
+        return{"text":  tokenizer.apply_chat_template(examples["messages"], tokenize=False)}
 
     print("train_dataset0:")
     print(train_dataset[0])
