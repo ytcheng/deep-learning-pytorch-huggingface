@@ -94,6 +94,8 @@ def training_function(script_args, training_args):
     print(train_dataset[0])
     print("test_dataset0:")
     print(test_dataset[0])
+    print("len:")
+    print(len(train_dataset[0]["messages"]))
     train_dataset = train_dataset.map(template_dataset, remove_columns=["messages"])
     test_dataset = test_dataset.map(template_dataset, remove_columns=["messages"])
     print("train_dataset:")
