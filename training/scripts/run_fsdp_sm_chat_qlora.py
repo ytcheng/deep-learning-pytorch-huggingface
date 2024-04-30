@@ -147,7 +147,7 @@ def training_function(script_args, training_args):
     #     task_type="CAUSAL_LM",
     #     # modules_to_save = ["lm_head", "embed_tokens"] # add if you want to use the Llama 3 instruct template
     # )
-    peft_config = PeftConfig.from_pretrained("llama-3-8b-hf-sm", is_trainable=True)
+    peft_config = PeftConfig.from_pretrained("llama-3-8b-hf-sm", is_trainable=True, inference_mode=False)
 
 
     ################
