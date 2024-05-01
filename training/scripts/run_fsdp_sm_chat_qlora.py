@@ -81,7 +81,7 @@ def training_function(script_args, training_args):
     ################
 
     # Tokenizer        
-    tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8b", use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(script_args.model_id, use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.chat_template = LLAMA_3_CHAT_TEMPLATE
     
@@ -160,7 +160,7 @@ def training_function(script_args, training_args):
         train_dataset=train_dataset,
         dataset_text_field="text",
         eval_dataset=test_dataset,
-        # peft_config=peft_config,
+        peft_config=peft_config,
         max_seq_length=script_args.max_seq_length,
         tokenizer=tokenizer,
         packing=True,
@@ -178,6 +178,8 @@ def training_function(script_args, training_args):
     checkpoint = None
     if training_args.resume_from_checkpoint is not None:
         checkpoint = training_args.resume_from_checkpoint
+    print("checkpoint:")
+    print(checkpoint)
     trainer.train(resume_from_checkpoint=checkpoint)
 
     ##########################

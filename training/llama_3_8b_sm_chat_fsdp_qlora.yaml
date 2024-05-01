@@ -1,5 +1,5 @@
 # script parameters
-model_id: "./llama-3-8b-hf-sm" # Hugging Face model id
+model_id: "meta-llama/Meta-Llama-3-8b" # Hugging Face model id
 dataset_path: "./sm_chat"                      # path to dataset
 max_seq_len:  3072 # 2048              # max sequence length for model and packing of the dataset
 # training parameters
@@ -20,6 +20,7 @@ warmup_ratio: 0.03                     # warmup ratio
 bf16: true                             # use bfloat16 precision
 tf32: true                             # use tf32 precision
 gradient_checkpointing: true           # use gradient checkpointing to save memory
+resume_from_checkpoint: "./llama-3-8b-hf-sm"
 # FSDP parameters: https://huggingface.co/docs/transformers/main/en/fsdp
 fsdp: "full_shard auto_wrap offload" # remove offload if enough GPU memory
 fsdp_config:
