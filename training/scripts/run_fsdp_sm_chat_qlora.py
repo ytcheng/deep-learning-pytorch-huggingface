@@ -122,14 +122,14 @@ def training_function(script_args, training_args):
         )
 
     model = AutoModelForCausalLM.from_pretrained(
-        # script_args.model_id,
-        "meta-llama/Meta-Llama-3-8b",
+        script_args.model_id,
+        # "meta-llama/Meta-Llama-3-8b",
         quantization_config=quantization_config,
         attn_implementation="sdpa", # use sdpa, alternatively use "flash_attention_2"
         torch_dtype=quant_storage_dtype,
         use_cache=False if training_args.gradient_checkpointing else True,  # this is needed for gradient checkpointing
     )
-    model = PeftModel.from_pretrained(model, "llama-3-8b-hf-sm")
+    # model = PeftModel.from_pretrained(model, "llama-3-8b-hf-sm")
     # model.load_adapter("llama-3-8b-hf-sm")
     if training_args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
@@ -139,16 +139,16 @@ def training_function(script_args, training_args):
     ################
 
     # LoRA config based on QLoRA paper & Sebastian Raschka experiment
-    # peft_config = LoraConfig(
-    #     lora_alpha=8,
-    #     lora_dropout=0.05,
-    #     r=16,
-    #     bias="none",
-    #     target_modules="all-linear",
-    #     task_type="CAUSAL_LM",
-    #     # modules_to_save = ["lm_head", "embed_tokens"] # add if you want to use the Llama 3 instruct template
-    # )
-    peft_config = PeftConfig.from_pretrained("llama-3-8b-hf-sm", is_trainable=True, inference_mode=False,torch_dtype=torch.float16, device_map={'': 0})
+    peft_config = LoraConfig(
+        lora_alpha=8,
+        lora_dropout=0.05,
+        r=16,
+        bias="none",
+        target_modules="all-linear",
+        task_type="CAUSAL_LM",
+        # modules_to_save = ["lm_head", "embed_tokens"] # add if you want to use the Llama 3 instruct template
+    )
+    # peft_config = PeftConfig.from_pretrained("llama-3-8b-hf-sm", is_trainable=True, inference_mode=False,torch_dtype=torch.float16, device_map={'': 0})
 
 
     ################
