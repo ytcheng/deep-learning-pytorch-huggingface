@@ -1,7 +1,7 @@
 from datasets import load_dataset
 
 # Convert dataset to OAI messages
-system_message = """你是蜀门游戏助手，你需要根据回答用户的问题"""
+system_message = """你是蜀门游戏助手，你需要回答用户提出的和蜀门相关的问题"""
 
 def create_conversation(sample):
     sample["messages"] = [{"role": "system", "content": system_message}, {"role":"user", "content": sample["question"]}, {"role":"assistant", "content":sample["answer"]}]
