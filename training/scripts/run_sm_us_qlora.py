@@ -96,8 +96,8 @@ def training_function(script_args, training_args):
     def template_dataset(examples):
         return{"text":  tokenizer.apply_chat_template(examples, tokenize=False)}
     
-    train_dataset = train_dataset.map(template_dataset, remove_columns=dataset)
-    test_dataset = test_dataset.map(template_dataset, remove_columns=dataset)
+    train_dataset = train_dataset.map(template_dataset, remove_columns=["title","content", "time"])
+    test_dataset = test_dataset.map(template_dataset, remove_columns=["title","content", "time"])
     
     # print random sample
     with training_args.main_process_first(
