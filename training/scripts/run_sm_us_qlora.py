@@ -79,7 +79,7 @@ def training_function(script_args, training_args):
     # )
 
     dataset = load_dataset(script_args.dataset)
-    dataset = dataset.shuffle(200)
+    dataset = dataset.shuffle()
     dataset = dataset["train"].train_test_split(test_size=0.05)
     train_dataset = dataset["train"]
     test_dataset = dataset["test"]
