@@ -48,10 +48,10 @@ LLAMA_3_CHAT_TEMPLATE = (
 
 @dataclass
 class ScriptArguments:
-    dataset_path: str = field(
+    dataset: str = field(
         default=None,
         metadata={
-            "help": "Path to the dataset"
+            "help": "huggingface dataset"
         },
     )
     model_id: str = field(
