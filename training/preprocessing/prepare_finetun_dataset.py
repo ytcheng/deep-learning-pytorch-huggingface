@@ -35,7 +35,7 @@ for openid, messages in grouped_data.items():
         otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
         if message['opercode'] == 2003:  # 用户消息
             conversation.append({"role": "user", "content": message['text']})
-        elif message['opercode'] == 2002:  # 客服消息
+        elif message['opercode'] == 2002 and "https://www.wjx.top" not in message['text']:  # 客服消息
             conversation.append({ "role": "assistant", "content": message['text']})
     
     result.append({"messages": conversation})
