@@ -58,12 +58,13 @@ def filter_quesiton(batch):
     )
     results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     results = map(get_response, results)
+    results = list(results)
     print(results)
     batch["merged"] = results
     torch.cuda.empty_cache()
     get_gpu_memory_usage()
-    print(batch)
-    # return batch
+    # print(batch)
+    return batch
 
 
 dataset = load_dataset("ytcheng/sm_question1")
