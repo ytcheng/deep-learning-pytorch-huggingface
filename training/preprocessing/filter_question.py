@@ -62,7 +62,8 @@ def filter_quesiton(batch):
     batch["merged"] = results
     torch.cuda.empty_cache()
     get_gpu_memory_usage()
-    return batch
+    print(batch)
+    # return batch
 
 
 dataset = load_dataset("ytcheng/sm_question1")
