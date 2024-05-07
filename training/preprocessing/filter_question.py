@@ -31,7 +31,7 @@ def filter_quesiton(batch):
 
         messages = [
             {"role": "system", "content":"处理下面几段json，过滤掉question字段不是问句的。如果quesion过长(超过30字)则对quetion进行简化，只保留关键内容。再合并。最后看看是否有意思一样的，如果有意思一样的字数多的。最终输出一段json, 不是要过程，我是要结果。输出结果中只包含json,不要包含其它内容"},
-            {"role": "user", "content": outputs.join("\n")},
+            {"role": "user", "content": "\n".join(outputs)},
         ]
         chat = tokenizer.apply_chat_template(
             messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
