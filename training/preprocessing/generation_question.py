@@ -24,6 +24,14 @@ tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side='left')
 model = AutoModelForCausalLM.from_pretrained(
     model_id, torch_dtype="auto", device_map="auto",quantization_config=quantization_config
 )
+def get_gpu_memory_usage():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device.type == "cuda":
+        print("CUDA device detected.")
+        print("Device name:", torch.cuda.get_device_name(0))
+        print("Memory Usage:")
+        print("Allocated:", round(torch.cuda.memory_allocated(0)/1024**3,1), "GB")
+        print("Cached:   ", round(torch.cuda.memory_reserved(0)/1024**3,1), "GB")
 
 def generate_question(batch):
     # print(batch)
@@ -52,7 +60,7 @@ def generate_question(batch):
 
     # input_ids.to("cpu")
     torch.cuda.empty_cache()
-
+    get_gpu_memory_usage()
     # results = []
     # for index, sample in enumerate(batch["title"]):
     #     results.append("result:" + str(index))
