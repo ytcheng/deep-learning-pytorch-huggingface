@@ -46,7 +46,7 @@ def generate_question(batch):
         max_new_tokens=8192,
         do_sample=True,
         temperature=0.6,
-        top_p=0.9,
+        top_p=0.8,
     )
     results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
