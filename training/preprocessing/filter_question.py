@@ -25,7 +25,7 @@ def get_gpu_memory_usage():
         print("Memory Usage:")
         print("Allocated:", round(torch.cuda.memory_allocated(0)/1024**3,1), "GB")
         print("Cached:   ", round(torch.cuda.memory_reserved(0)/1024**3,1), "GB")
-        
+
 def get_response(output):
     if "assistant\n\n" in output:
         parts = output.split("assistant\n\n", 1)
@@ -63,7 +63,7 @@ def filter_quesiton(batch):
     get_gpu_memory_usage()
 
 dataset = load_dataset("ytcheng/sm_question1")
-dataset = dataset.map(filter_quesiton, batch_size=8, batched=True)
+dataset = dataset.map(filter_quesiton, batch_size=4, batched=True)
 
 print(dataset)
 dataset.push_to_hub("ytcheng/sm_question1")
