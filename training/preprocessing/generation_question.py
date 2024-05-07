@@ -1,11 +1,13 @@
-from datasets import load_dataset
+from datasets import load_dataset, concatenate_datasets
 from transformers import AutoTokenizer, AutoModelForCausalLM,BitsAndBytesConfig
 import torch
 from tqdm import tqdm
 import json
 import re
 from datasets import Dataset, DatasetDict
+import hashlib
 
+from bs4 import BeautifulSoup
 
 model_id = "shenzhi-wang/Llama3-8B-Chinese-Chat"
 
@@ -23,105 +25,87 @@ model = AutoModelForCausalLM.from_pretrained(
     model_id, torch_dtype="auto", device_map="auto",quantization_config=quantization_config
 )
 
-raw_datasets = load_dataset("ytcheng/sm_news")
-print(raw_datasets)
-drug_dataset = raw_datasets.filter(lambda x: x["content"]!="").filter(lambda x: x["type"]==5)
-print(drug_dataset)
+def generate_question(batch):
+    # print(batch)
+    chats = []
+    for index, title in enumerate(batch["title"]):
 
-generate_data = []
-chats = []
-batch_size = 32
-total_data = len(drug_dataset['train']) * 10
+        messages = [
+            {"role": "system", "content":"从用户发的文本中，提取出尽可能多的问题和答案，以json格式输出，格式为[{\"question\":\"xxx\",\"answer\":\"xx\"},....],注意，回答只包含json，不要包含其它内容。如果问题和答案要在特定的条件下才成立，则生成的问题和答案要把条件带上，因为这些问题和答案要脱离这篇文章使用。"},
+            {"role": "user", "content": "title: " + title +"content:\n" + batch["content"][index]},
+        ]
+        chat = tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
+        )
+        chats.append(chat)
+        
+    input_ids = tokenizer(chats, return_tensors="pt", padding=True).to(model.device)
 
-with tqdm(total=total_data) as pbar:
-    for i in range(1, 11):
-        for data in drug_dataset['train']:
-            messages = [
-                {"role": "system", "content":"从用户发的文本中，提取出尽可能多的问题和答案，以json格式输出，格式为[{\"question\":\"xxx\",\"answer\":\"xx\"},....],注意，回答只包含json，不要包含其它内容。如果问题和答案要在特定的条件下才成立，则生成的问题和答案要把条件带上，因为这些问题和答案要脱离这篇文章使用。"},
-                {"role": "user", "content": "title: " + data["title"] +"content:\n" + data["content"]},
-            ]
-            chat = tokenizer.apply_chat_template(
-                messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
-            )
-            chats.append(chat)
-            if(len(chats) >= batch_size):
-                input_ids = tokenizer(chats, return_tensors="pt", padding=True).to(model.device)
+    outputs = model.generate(
+        **input_ids,
+        max_new_tokens=8192,
+        do_sample=True,
+        temperature=0.6,
+        top_p=0.9,
+    )
+    results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
-                outputs = model.generate(
-                    **input_ids,
-                    max_new_tokens=8192,
-                    do_sample=True,
-                    temperature=0.6,
-                    top_p=0.9,
-                )
-                result = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-                generate_data = generate_data + result
-                input_ids.to("cpu")
-                torch.cuda.empty_cache()
+    # input_ids.to("cpu")
+    torch.cuda.empty_cache()
 
-                chats = []
-                # 更新进度条
-                pbar.update(batch_size)
+    # results = []
+    # for index, sample in enumerate(batch["title"]):
+    #     results.append("result:" + str(index))
 
-drug_dataset = load_dataset("ytcheng/sm_strategy")
-drug_dataset
-with tqdm(total=total_data) as pbar:
-    for i in range(1, 11):
-        for data in drug_dataset['train']:
-            messages = [
-                {"role": "system", "content":"从用户发的文本中，提取出尽可能多的问题和答案，以json格式输出，格式为[{\"question\":\"xxx\",\"answer\":\"xx\"},....],注意，回答只包含json，不要包含其它内容。如果问题和答案要在特定的条件下才成立，则生成的问题和答案要把条件带上，因为这些问题和答案要脱离这篇文章使用。"},
-                {"role": "user", "content": "title: " + data["title"] +"content:\n" + data["content"]},
-            ]
-            chat = tokenizer.apply_chat_template(
-                messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
-            )
-            chats.append(chat)
-            if(len(chats) >= batch_size):
-                input_ids = tokenizer(chats, return_tensors="pt", padding=True).to(model.device)
+    if "output" in batch:
+        for idx, result in enumerate(results):
+            batch["output"][idx].append(result)
+    else:
+        outputs = []
+        for idx, result in enumerate(results):
+            output = [result]
+            outputs.append(output)
+        batch["output"] = outputs
+    return batch
 
-                outputs = model.generate(
-                    **input_ids,
-                    max_new_tokens=8192,
-                    do_sample=True,
-                    temperature=0.6,
-                    top_p=0.9,
-                )
-                result = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-                generate_data = generate_data + result
-                input_ids.to("cpu")
-                torch.cuda.empty_cache()
+pattern = re.compile(r'\[img\][^\[^\]]*\[/img\]')
+def remove_html_tags(data):
+    soup = BeautifulSoup(data["content"], "html.parser")
+    clean_text = soup.get_text()
+    clean_text = clean_text.replace('\u3000', '')
+    clean_text = clean_text.replace('\xa0','')
+    clean_text = re.sub(pattern, ' ', clean_text)
 
-                chats = []
-                # 更新进度条
-                pbar.update(batch_size)
-
-parseData  = []
-for data in generate_data:
-    start_index = data.find("```json\n[")+len("```json\n")
-    # 找到JSON部分的结束位置
-    end_index = data.rfind("]") + 1
-    # 提取JSON部分
-    json_text = data[start_index:end_index]
-    print("json_text:")
-    print(json_text)
-    
-    # content = data["content"].replace("```json", "")
-    # content = content.replace("```", "")
-    # print(json_text)
-    try:
-        content = json.loads(json_text)
-        # break
-        for item in content:
-            parseData.append(item)
-    except json.JSONDecodeError as e:
-        print("Error decoding JSON:", e)
-        print("Skipping this JSON string.")
-    # print(content)
-    # parseData.append(content)
-# print(parseData)
-len(parseData)
+    data["content"] = clean_text
+    return data
 
 
-generate_datasets = Dataset.from_list(parseData)
+article_dataset = load_dataset("ytcheng/sm_news")
+article_dataset = article_dataset.filter(lambda x: x["content"]!="").filter(lambda x: x["type"]==5)
+columns_to_remove = list(article_dataset["train"].features)
+columns_to_remove.remove("title")
+columns_to_remove.remove("content")
+article_dataset = article_dataset.filter(lambda x: x["content"]!="")
+article_dataset = article_dataset.map(remove_html_tags, remove_columns=columns_to_remove)
+print(article_dataset)
+# print(article_dataset["train"][0])
+
+strategy_dataset = load_dataset("ytcheng/sm_strategy")
+columns_to_remove = list(strategy_dataset["train"].features)
+columns_to_remove.remove("title")
+columns_to_remove.remove("content")
+strategy_dataset = strategy_dataset.map(remove_html_tags, remove_columns=columns_to_remove)
+print(strategy_dataset)
+# print(strategy_dataset["train"][0])
+
+dataset = concatenate_datasets([strategy_dataset["train"], article_dataset["train"]])
+
+for i in range(1, 6):
+    dataset = dataset.map(generate_question, batch_size=32, batched=True)
+    print(dataset[0])
+print(dataset)
+print(dataset[0])
+
+generate_datasets = Dataset.from_list(dataset)
 datasets_formatted_data = DatasetDict({"train":  generate_datasets})
 datasets_formatted_data.push_to_hub("ytcheng/sm_question1")
