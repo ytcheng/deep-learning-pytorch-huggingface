@@ -20,7 +20,7 @@ quantization_config = BitsAndBytesConfig(
     bnb_4bit_compute_dtype=torch_dtype,
     bnb_4bit_quant_storage=quant_storage_dtype,
 )
-tokenizer = AutoTokenizer.from_pretrained(model_id)
+tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side='left')
 model = AutoModelForCausalLM.from_pretrained(
     model_id, torch_dtype="auto", device_map="auto",quantization_config=quantization_config
 )
@@ -43,7 +43,7 @@ def generate_question(batch):
 
     outputs = model.generate(
         **input_ids,
-        max_new_tokens=8192,
+        max_new_tokens=4096,
         do_sample=True,
         temperature=0.6,
         top_p=0.8,
