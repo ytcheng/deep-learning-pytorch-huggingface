@@ -101,7 +101,7 @@ print(strategy_dataset)
 dataset = concatenate_datasets([strategy_dataset["train"], article_dataset["train"]])
 
 for i in range(1, 6):
-    dataset = dataset.map(generate_question, batch_size=32, batched=True)
+    dataset = dataset.map(generate_question, batch_size=16, batched=True)
     print(dataset[0])
 print(dataset)
 print(dataset[0])
