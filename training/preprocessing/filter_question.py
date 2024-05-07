@@ -17,6 +17,15 @@ tokenizer = AutoTokenizer.from_pretrained(model_id, padding_side='left')
 model = AutoModelForCausalLM.from_pretrained(
     model_id, torch_dtype="auto", device_map="auto",quantization_config=quantization_config
 )
+def get_gpu_memory_usage():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if device.type == "cuda":
+        print("CUDA device detected.")
+        print("Device name:", torch.cuda.get_device_name(0))
+        print("Memory Usage:")
+        print("Allocated:", round(torch.cuda.memory_allocated(0)/1024**3,1), "GB")
+        print("Cached:   ", round(torch.cuda.memory_reserved(0)/1024**3,1), "GB")
+        
 def get_response(output):
     if "assistant\n\n" in output:
         parts = output.split("assistant\n\n", 1)
@@ -37,7 +46,7 @@ def filter_quesiton(batch):
             messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
         )
         chats.append(chat)
-    
+    # print(chats)
     input_ids = tokenizer(chats, return_tensors="pt", padding=True).to(model.device)
 
     outputs = model.generate(
@@ -50,9 +59,11 @@ def filter_quesiton(batch):
     results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     results = map(get_response, results)
     batch["merged"] = results
+    torch.cuda.empty_cache()
+    get_gpu_memory_usage()
 
 dataset = load_dataset("ytcheng/sm_question1")
 dataset = dataset.map(filter_quesiton, batch_size=8, batched=True)
 
-
+print(dataset)
 dataset.push_to_hub("ytcheng/sm_question1")
