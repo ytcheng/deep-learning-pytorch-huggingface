@@ -50,7 +50,7 @@ def generate_question(sample):
         sample["replaced"] = json.dumps(sample["messages"], ensure_ascii=False)
     else:
         messages = [
-            {"role": "system", "content":"下面是一段客服对话记录，其中有部分以https://mp.weixin.qq.com开头的是用户发送的图片，请根据上下文猜测图片的内容，并用文字内容替换图片，重新返回json给我。"},
+            {"role": "system", "content":"下面是一段客服对话记录，其中有部分以https://mp.weixin.qq.com开头的是用户发送的图片，请根据上下文猜测图片的内容，并用文字内容替换图片，让整个对话看起来真实合理，输出修改过的json。"},
             {"role": "user", "content": sample["messages"]},
         ]
         # chat = tokenizer.apply_chat_template(
