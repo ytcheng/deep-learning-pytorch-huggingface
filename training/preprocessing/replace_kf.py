@@ -69,6 +69,7 @@ def generate_question(sample):
         )
         response = outputs[0]
         response = tokenizer.decode(response, skip_special_tokens=True)
+        response = get_response(response)
         print(response)
         get_gpu_memory_usage()
         torch.cuda.empty_cache()
