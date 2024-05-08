@@ -44,6 +44,8 @@ def contain_image(messages):
             return True
     return False
 def generate_question(sample):
+    print("resolve:")
+    print(sample["resolve"])
     if not sample["resolve"] or not contain_image(sample["messages"]):
         sample["replaced"] = json.dumps(sample["messages"], ensure_ascii=False)
     else:
