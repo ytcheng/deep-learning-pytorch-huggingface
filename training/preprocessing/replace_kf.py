@@ -86,4 +86,4 @@ print(chat_dataset["train"][0])
 
 chat_dataset = chat_dataset.map(generate_question)
 print(chat_dataset)
-# chat_dataset.push_to_hub("ytcheng/sm_kf")
+chat_dataset.push_to_hub("ytcheng/sm_kf")
