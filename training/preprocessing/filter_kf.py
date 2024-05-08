@@ -115,5 +115,5 @@ def generate_question(batch):
 
     return batch
 
-kf_dataset.map(generate_question, batched=True, batch_size=4)
+kf_dataset = kf_dataset.map(generate_question, batched=True, batch_size=4)
 kf_dataset.push_to_hub("ytcheng/sm_kf")
