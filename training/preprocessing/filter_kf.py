@@ -80,7 +80,7 @@ def generate_question(batch):
     for index, messages in enumerate(batch["messages"]):
 
         messages = [
-            {"role": "system", "content":"下面是一段客服对话记录，你判断是否已经解决了用户的问题或者给用户给供了有价值的信息，如果解决或提供了有价值的信息返回true,未解决返回false"},
+            {"role": "system", "content":"下面是一段客服对话记录，你判断是否已经解决了用户的问题或者给用户给供了有价值的信息，如果解决了问题或提供了有价值的信息返回true,未解决返回false"},
             {"role": "user", "content": messages},
         ]
         chat = tokenizer.apply_chat_template(
@@ -102,7 +102,7 @@ def generate_question(batch):
     results = list(results)
 
     resolve = []
-    for item in result:
+    for item in results:
         if "true" in item or "True" in item:
             resolve.append(True)
         else:
