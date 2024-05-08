@@ -5,16 +5,6 @@ import json
 import torch
 
 system_message = """你是蜀门游戏助手，你需要回答用户提出的和蜀门相关的问题"""
-# 处理客服聊天记录
-chat_dataset = load_dataset(
-        "ytcheng/sm_kf"
-)
-# chat_dataset = chat_dataset.sort("time")
-print(chat_dataset)
-print(chat_dataset["train"][0])
-
-
-
 model_id = "shenzhi-wang/Llama3-8B-Chinese-Chat"
 
 torch_dtype = torch.bfloat16
@@ -61,12 +51,15 @@ def generate_question(sample):
             {"role": "system", "content":"下面是一段客服对话记录，其中有部分以http开头的是用户发送的图片，请根据上下文猜测图片的内容，并用文字内容替换图片，重新返回json给我。"},
             {"role": "user", "content": sample["messages"]},
         ]
-        chat = tokenizer.apply_chat_template(
-            messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
-        )
+        # chat = tokenizer.apply_chat_template(
+        #     messages, add_generation_prompt=True, return_tensors="pt", tokenize=False
+        # )
+        input_ids = tokenizer.apply_chat_template(
+            messages, add_generation_prompt=True, return_tensors="pt"
+        ).to(model.device)
         
         # print(chats) 
-        input_ids = tokenizer(chat, return_tensors="pt", padding=True).to(model.device)
+        # input_ids = tokenizer(chat, return_tensors="pt", padding=True).to(model.device)
 
         outputs = model.generate(
             input_ids,
@@ -80,6 +73,13 @@ def generate_question(sample):
 
     return sample
 
+# 处理客服聊天记录
+chat_dataset = load_dataset(
+        "ytcheng/sm_kf"
+)
+# chat_dataset = chat_dataset.sort("time")
+print(chat_dataset)
+print(chat_dataset["train"][0])
 
 chat_dataset = chat_dataset.map(generate_question)
 print(chat_dataset)
