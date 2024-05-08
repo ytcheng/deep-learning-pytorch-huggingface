@@ -92,10 +92,9 @@ def generate_question(batch):
 
     outputs = model.generate(
         **input_ids,
-        max_new_tokens=4096,
-        do_sample=True,
-        temperature=0.6,
-        top_p=0.8,
+        max_new_tokens=1024,
+        temperature=0.5,
+        top_p=0.9,
     )
     results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     results = map(get_response, results)
@@ -103,10 +102,10 @@ def generate_question(batch):
 
     resolve = []
     for item in results:
-        if "true" in item or "True" in item:
-            resolve.append(True)
-        else:
+        if "false" in item or "False" in item:
             resolve.append(False)
+        else:
+            resolve.append(True)
     batch["resolve"] = resolve
     batch["output"] = results
     print(batch)
@@ -116,5 +115,5 @@ def generate_question(batch):
 
     return batch
 
-kf_dataset.map(generate_question, batched=True, batch_size=8)
+kf_dataset.map(generate_question, batched=True, batch_size=16)
 kf_dataset.push_to_hub("ytcheng/sm_kf")
