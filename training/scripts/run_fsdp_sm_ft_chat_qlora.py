@@ -158,7 +158,7 @@ def training_function(script_args, training_args):
         peft_config=peft_config,
         max_seq_length=script_args.max_seq_length,
         tokenizer=tokenizer,
-        packing=False,
+        packing=True,
         dataset_kwargs={
             "add_special_tokens": False,  # We template with special tokens
             "append_concat_token": False,  # No need to add additional separator token
