@@ -93,8 +93,8 @@ def generate_question(batch):
     outputs = model.generate(
         **input_ids,
         max_new_tokens=512,
-        temperature=0.5,
-        top_p=0.9,
+        # temperature=0.5,
+        # top_p=0.9,
     )
     results = tokenizer.batch_decode(outputs, skip_special_tokens=True)
     results = map(get_response, results)
