@@ -33,7 +33,7 @@ LLAMA_3_CHAT_TEMPLATE = (
         	"{% set content = bos_token + content %}"
 		"{% endif %}"
         "{{ content }}"
-	"{% endfor %}' }}"
+	"{% endfor %}"
 	"{% if add_generation_prompt %}"
     	"{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}"
     "{% endif %}"
