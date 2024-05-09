@@ -78,7 +78,7 @@ def training_function(script_args, training_args):
     # Tokenizer        
     tokenizer = AutoTokenizer.from_pretrained(script_args.model_id, use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
-    tokenizer.chat_template = LLAMA_3_CHAT_TEMPLATE
+    # tokenizer.chat_template = LLAMA_3_CHAT_TEMPLATE
     
     # template dataset
     def template_dataset(examples):
