@@ -26,17 +26,20 @@ from trl import (
 # Anthropic/Vicuna like template without the need for special tokens
 
 LLAMA_3_CHAT_TEMPLATE = (
-    "{% set loop_messages = messages %}"
-    "{% for message in loop_messages %}"
-    	"{% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}"
-        "{% if loop.index0 == 0 %}"
-        	"{% set content = bos_token + content %}"
+	"{% set loop_messages = messages %}"
+	"{% for message in loop_messages %}"
+		"{% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}"
+		"{% if loop.index0 == 0 %}"
+			"{% set content = bos_token + content %}"
 		"{% endif %}"
-        "{{ content }}"
+		"{{ content }}"
+		"{% if message['role'] == 'assistant' %}"
+			"{{ eos_token  }}"
+		"{% endif %}"
 	"{% endfor %}"
 	"{% if add_generation_prompt %}"
-    	"{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}"
-    "{% endif %}"
+		"{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}"
+	"{% endif %}"
 )
 
 # ACCELERATE_USE_FSDP=1 FSDP_CPU_RAM_EFFICIENT_LOADING=1 torchrun --nproc_per_node=4 ./scripts/run_fsdp_qlora.py --config llama_3_70b_fsdp_qlora.yaml
